@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Akıllı Sağlık Kimliği V5.0</title>
+    <style>
+        /* --- MODERN TASARIM SİSTEMİ --- */
+        :root {
+            --bg: #f4f4f9;
+            --white: #ffffff;
+            --primary: #ff4757; /* Acil Kırmızı */
+            --dark: #2f3542;
+            --blue: #3742fa;
+            --green: #2ed573;
+            --grey: #ced6e0;
+            --text-light: #747d8c;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { margin: 0; padding: 0; background: var(--bg); color: var(--dark); padding-bottom: 40px; }
+        
+        .app-wrap { max-width: 480px; margin: 0 auto; background: var(--white); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+
+        /* --- BAŞLIK ALANI --- */
+        .hero {
+            background: linear-gradient(135deg, #2f3542, #57606f);
+            color: white;
+            padding: 30px 20px 40px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .hero-avatar {
+            width: 110px; height: 110px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.9);
+            object-fit: cover; background: #eee; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .hero h1 { margin: 0; font-size: 22px; font-weight: 800; }
+        .hero-tag {
+            background: var(--primary); color: white; padding: 5px 15px;
+            border-radius: 20px; font-size: 13px; font-weight: bold;
+            display: inline-block; margin-top: 8px; text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+        }
+
+        /* --- İÇERİK --- */
+        .content { padding: 20px; flex: 1; margin-top: -20px; }
+
+        /* AI Butonu */
+        .ai-trigger {
+            background: linear-gradient(45deg, #3742fa, #5352ed);
+            color: white; border: none; width: 100%; padding: 18px;
+            border-radius: 16px; font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 8px 20px rgba(55, 66, 250, 0.3);
+            cursor: pointer; margin-bottom: 25px; transition: transform 0.1s;
+        }
+        .ai-trigger:active { transform: scale(0.98); }
+
+        /* Veri Kartları */
+        .card {
+            background: white; border-radius: 12px; padding: 15px;
+            margin-bottom: 12px; border: 1px solid #f1f2f6;
+            border-left: 5px solid var(--blue);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .card.danger { border-left-color: var(--primary); background: #fff0f1; }
+        .card-title { font-size: 11px; color: var(--text-light); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-data { font-size: 16px; font-weight: 600; margin-top: 5px; color: var(--dark); line-height: 1.4; }
+
+        /* Aile Bölümü */
+        .family-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .fam-btn {
+            background: #f1f2f6; border: none; padding: 15px;
+            border-radius: 12px; text-align: center; text-decoration: none;
+            color: var(--dark); display: flex; flex-direction: column;
+            align-items: center; gap: 5px; transition: 0.2s;
+        }
+        .fam-btn:active { background: #dfe4ea; }
+        .fam-emoji { font-size: 24px; }
+        .fam-label { font-size: 12px; font-weight: 700; }
+
+        /* --- AI CHAT EKRANI --- */
+        .chat-wrap { display: flex; flex-direction: column; height: 100%; }
+        .chat-area {
+            flex: 1; overflow-y: auto; padding: 15px;
+            background: #f8f9fa; border-radius: 15px; margin-bottom: 15px;
+        }
+        .msg { padding: 12px 16px; border-radius: 18px; margin-bottom: 10px; max-width: 85%; font-size: 15px; line-height: 1.4; position: relative; }
+        .msg.bot { background: white; border-bottom-left-radius: 4px; border: 1px solid #eee; align-self: flex-start; color: #333; }
+        .msg.user { background: var(--blue); color: white; border-bottom-right-radius: 4px; align-self: flex-end; margin-left: auto; }
+        
+        .emergency-box {
+            background: var(--primary); color: white; padding: 20px;
+            border-radius: 15px; text-align: center; animation: pulse 1s infinite;
+        }
+        .emergency-btn {
+            display: block; background: white; color: var(--primary);
+            text-decoration: none; padding: 12px; border-radius: 10px;
+            font-weight: 900; font-size: 24px; margin-top: 10px;
+        }
+
+        .opt-area { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .opt-btn {
+            flex: 1 1 45%; padding: 14px; background: white;
+            border: 1px solid var(--blue); color: var(--blue);
+            border-radius: 25px; font-weight: 600; cursor: pointer;
+        }
+        
+        /* Admin Form */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: #666; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background: white; }
+
+        .hidden { display: none !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div id="screen-view" class="app-wrap">
+        <div class="hero">
+            <img id="v-img" src="" class="hero-avatar">
+            <h1 id="v-name">...</h1>
+            <div id="v-disease" class="hero-tag">...</div>
+        </div>
+        
+        <div class="content">
+            <button onclick="AI.start()" class="ai-trigger">
+                <span>🤖</span> ACİL DURUM ASİSTANI BAŞLAT
+            </button>
+
+            <div class="card">
+                <div class="card-title">KAN GRUBU</div>
+                <div id="v-blood" class="card-data">...</div>
+            </div>
+
+            <div class="card danger">
+                <div class="card-title">⚠️ ALERJİLER</div>
+                <div id="v-allergy" class="card-data">...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">İLAÇLAR</div>
+                <div id="v-meds" class="card-data">...</div>
+            </div>
+
+            <div class="card-title" style="margin-top: 20px;">AİLE İLETİŞİM</div>
+            <div id="v-family" class="family-grid"></div>
+
+            <div style="text-align:center; margin-top:30px;">
+                <button onclick="Admin.login()" style="border:none; background:none; color:#aaa; font-size:12px; text-decoration:underline;">Yönetici Girişi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-ai" class="app-wrap hidden">
+        <div class="hero" style="padding: 20px; background: var(--green);">
+            <h1 style="font-size: 18px;">🤖 Akıllı Asistan</h1>
+        </div>
+        <div class="content chat-wrap">
+            <div id="chat-box" class="chat-area"></div>
+            <div id="chat-opts" class="opt-area"></div>
+            <button onclick="UI.show('view')" style="margin-top:15px; padding:10px; background:#eee; border:none; border-radius:10px; width:100%;">Kapat</button>
+        </div>
+    </div>
+
+    <div id="screen-admin" class="app-wrap hidden">
+        <div class="hero" style="padding: 20px; background: #333;">
+            <h1 style="font-size: 18px;">⚙️ Veri Düzenle</h1>
+        </div>
+        <div class="content">
+            <div class="form-group"><label class="form-label">Ad Soyad</label><input id="i-name" class="form-input" type="text"></div>
+            <div class="form-group"><label class="form-label">Foto Linki</label><input id="i-img" class="form-input" type="text"></div>
+            <div class="form-group"><label class="form-label">Kan Grubu</label><input id="i-blood" class="form-input" type="text"></div>
+            
+            <div class="form-group">
+                <label class="form-label">Hastalık Seç</label>
+                <select id="i-disease" class="form-input"></select>
+            </div>
+
+            <div class="form-group"><label class="form-label">Alerjiler</label><textarea id="i-allergy" class="form-input"></textarea></div>
+            <div class="form-group"><label class="form-label">İlaçlar</label><textarea id="i-meds" class="form-input"></textarea></div>
+
+            <div class="card-title" style="margin:15px 0;">AİLE NUMARALARI</div>
+            <div class="form-group"><label class="form-label">Baba</label><input id="i-dad" class="form-input" type="tel"></div>
+            <div class="form-group"><label class="form-label">Anne</label><input id="i-mom" class="form-input" type="tel"></div>
+            <div class="form-group"><label class="form-label">E. Kardeş</label><input id="i-bro" class="form-input" type="tel"></div>
+            <div class="form-group"><label class="form-label">K. Kardeş</label><input id="i-sis" class="form-input" type="tel"></div>
+
+            <button onclick="Admin.save()" class="ai-trigger" style="background: var(--green);">KAYDET</button>
+        </div>
+    </div>
+
+<script>
+/* --- VERİTABANI (Hastalıklar) --- */
+const DB = [
+    {id:"EPIL", cat:"NEURO", name:"Epilepsi (Sara)"},
+    {id:"DIA1", cat:"META", name:"Tip 1 Diyabet"},
+    {id:"KALP", cat:"HEART", name:"Kalp Hastası"},
+    {id:"ASTIM", cat:"RESP", name:"Astım / KOAH"},
+    {id:"ARI", cat:"ALLERGY", name:"Alerji: Arı Sokması"},
+    {id:"FISTIK", cat:"ALLERGY", name:"Alerji: Fıstık"},
+    {id:"ALZH", cat:"MENTAL", name:"Alzheimer / Demans"},
+    {id:"HEMO", cat:"BLOOD", name:"Hemofili"},
+    {id:"GENEL", cat:"GENEL", name:"Diğer / Bilinmiyor"}
+    // Buraya 100 tane ekleyebiliriz ama şimdilik en kritikler yeterli.
+];
+
+/* --- UYGULAMA YÖNETİCİSİ --- */
+const UI = {
+    data: {},
+    
+    init: function() {
+        // Veriyi Güvenli Çekme (Hata Korumalı)
+        try {
+            const raw = localStorage.getItem('HealthID_V5');
+            this.data = raw ? JSON.parse(raw) : this.defaultData();
+        } catch(e) {
+            this.data = this.defaultData();
+        }
+
+        this.render();
+        this.fillSelect();
+        
+        // URL'de admin varsa aç
+        if(window.location.search.includes('mode=admin')) this.show('admin');
+    },
+
+    defaultData: function() {
+        return {
+            name: "Bilgi Girilmedi",
+            disease: "EPIL",
+            blood: "-",
+            allergy: "Belirtilmemiş",
+            meds: "Belirtilmemiş",
+            phones: {dad:"", mom:"", bro:"", sis:""},
+            img: "https://ui-avatars.com/api/?name=S+K&background=random&color=fff"
+        }
+    },
+
+    show: function(id) {
+        ['view', 'ai', 'admin'].forEach(s => document.getElementById('screen-'+s).classList.add('hidden'));
+        document.getElementById('screen-'+id).classList.remove('hidden');
+    },
+
+    render: function() {
+        const d = this.data;
+        const dis = DB.find(x => x.id === d.disease) || DB[0];
+
+        document.getElementById('v-name').innerText = d.name;
+        document.getElementById('v-disease').innerText = dis.name;
+        document.getElementById('v-blood').innerText = d.blood;
+        document.getElementById('v-allergy').innerText = d.allergy;
+        document.getElementById('v-meds').innerText = d.meds;
+        document.getElementById('v-img').src = d.img;
+        
+        // Aile Butonları
+        const famDiv = document.getElementById('v-family');
+        famDiv.innerHTML = "";
+        const labels = {dad:"BABA", mom:"ANNE", bro:"KARDEŞ(E)", sis:"KARDEŞ(K)"};
+        const icons = {dad:"👨", mom:"👩", bro:"👦", sis:"👧"};
+        
+        let hasNum = false;
+        for(let k in d.phones) {
+            if(d.phones[k].length > 2) {
+                hasNum = true;
+                famDiv.innerHTML += `
+                    <a href="tel:${d.phones[k]}" class="fam-btn">
+                        <span class="fam-emoji">${icons[k]}</span>
+                        <span class="fam-label">${labels[k]}</span>
+                    </a>`;
+            }
+        }
+        if(!hasNum) famDiv.innerHTML = "<div style='color:#999; grid-column:span 2; text-align:center;'>Acil numara eklenmemiş.</div>";
+    },
+
+    fillSelect: function() {
+        const s = document.getElementById('i-disease');
+        s.innerHTML = "";
+        DB.forEach(d => {
+            let o = document.createElement('option');
+            o.value = d.id;
+            o.text = d.name;
+            s.appendChild(o);
+        });
+    }
+};
+
+/* --- YÖNETİCİ MODÜLÜ --- */
+const Admin = {
+    login: function() {
+        if(prompt("Şifre:") === "01Talha55") {
+            this.loadForm();
+            UI.show('admin');
+        } else {
+            alert("Hatalı!");
+        }
+    },
+
+    loadForm: function() {
+        const d = UI.data;
+        document.getElementById('i-name').value = d.name;
+        document.getElementById('i-img').value = d.img;
+        document.getElementById('i-blood').value = d.blood;
+        document.getElementById('i-disease').value = d.disease;
+        document.getElementById('i-allergy').value = d.allergy;
+        document.getElementById('i-meds').value = d.meds;
+        document.getElementById('i-dad').value = d.phones.dad;
+        document.getElementById('i-mom').value = d.phones.mom;
+        document.getElementById('i-bro').value = d.phones.bro;
+        document.getElementById('i-sis').value = d.phones.sis;
+    },
+
+    save: function() {
+        const newData = {
+            name: document.getElementById('i-name').value,
+            img: document.getElementById('i-img').value,
+            blood: document.getElementById('i-blood').value,
+            disease: document.getElementById('i-disease').value,
+            allergy: document.getElementById('i-allergy').value,
+            meds: document.getElementById('i-meds').value,
+            phones: {
+                dad: document.getElementById('i-dad').value,
+                mom: document.getElementById('i-mom').value,
+                bro: document.getElementById('i-bro').value,
+                sis: document.getElementById('i-sis').value
+            }
+        };
+        localStorage.setItem('HealthID_V5', JSON.stringify(newData));
+        UI.data = newData;
+        UI.render();
+        UI.show('view');
+        alert("Kaydedildi!");
+    }
+};
+
+/* --- GELİŞMİŞ YAPAY ZEKA (Daktilo Efektli) --- */
+const AI = {
+    start: function() {
+        UI.show('ai');
+        document.getElementById('chat-box').innerHTML = "";
+        
+        const dis = DB.find(x => x.id === UI.data.disease) || DB[0];
+        this.botType(`Merhaba. Ben AI Asistan. Hastanın tanısı: <b>${dis.name}</b>. Şuan ne görüyorsunuz?`, () => {
+            // Kategoriye göre yönlendir
+            if(dis.cat === "NEURO") this.neuroFlow();
+            else if(dis.cat === "META") this.metaFlow();
+            else if(dis.cat === "HEART") this.heartFlow();
+            else if(dis.cat === "ALLERGY") this.allergyFlow();
+            else this.generalFlow();
+        });
+    },
+
+    botType: function(text, callback) {
+        const box = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = 'msg bot';
+        div.innerHTML = "<i>Yazıyor...</i>";
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+
+        setTimeout(() => {
+            div.innerHTML = text; // Gerçek metni göster
+            box.scrollTop = box.scrollHeight;
+            if(callback) callback();
+        }, 800); // 0.8 saniye yazma efekti
+    },
+
+    userSay: function(text) {
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div class="msg user">${text}</div>`;
+        box.scrollTop = box.scrollHeight;
+    },
+
+    emergency: function(reason) {
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `
+            <div class="emergency-box">
+                🚨 ACİL DURUM: ${reason}
+                <a href="tel:112" class="emergency-btn">📞 112 ARA</a>
+            </div>`;
+        box.scrollTop = box.scrollHeight;
+    },
+
+    buttons: function(opts) {
+        const div = document.getElementById('chat-opts');
+        div.innerHTML = "";
+        opts.forEach(o => {
+            let b = document.createElement('button');
+            b.className = 'opt-btn';
+            b.innerText = o.txt;
+            b.onclick = () => {
+                this.userSay(o.txt);
+                div.innerHTML = "";
+                o.act();
+            };
+            div.appendChild(b);
+        });
+    },
+
+    // --- SENARYOLAR ---
+    neuroFlow: function() {
+        this.buttons([
+            {txt:"Nöbet Geçiriyor", act:() => {
+                this.botType("⚠️ Sakin olun. Başını koruyun (yumuşak bir şey koyun). Sert cisimleri uzaklaştırın. <b>Ağzını açmaya çalışmayın!</b>", () => {
+                    setTimeout(() => {
+                        this.botType("Nöbet 5 dakikadan uzun sürdü mü?", () => {
+                           this.buttons([
+                               {txt:"Evet", act:() => this.emergency("UZAMIŞ NÖBET")},
+                               {txt:"Hayır, Durdu", act:() => this.botType("✅ Hastayı yan çevirin (İyileşme Pozisyonu).")}
+                           ]);
+                        });
+                    }, 2000);
+                });
+            }},
+            {txt:"Baygın / Hareketsiz", act:() => {
+                this.botType("Nefes alıyor mu?");
+                this.buttons([
+                    {txt:"Evet", act:() => this.botType("✅ Yan çevirin, hava yolu açık kalsın.")},
+                    {txt:"Hayır", act:() => this.emergency("SOLUNUM DURMASI (CPR BAŞLA)")}
+                ]);
+            }}
+        ]);
+    },
+
+    metaFlow: function() {
+        this.buttons([
+            {txt:"Bilinç Açık", act:() => {
+                this.botType("Terleme, titreme var mı?");
+                this.buttons([
+                    {txt:"Evet", act:() => this.botType("🍬 <b>ŞEKER DÜŞÜKLÜĞÜ:</b> Meyve suyu/şeker verin.")},
+                    {txt:"Hayır", act:() => this.botType("Dinlendirin, şekerini ölçtürün.")}
+                ]);
+            }},
+            {txt:"Bilinç Kapalı", act:() => {
+                this.botType("⛔ <b>AĞIZDAN BİR ŞEY VERMEYİN!</b>");
+                this.emergency("DİYABETİK KOMA RİSKİ");
+            }}
+        ]);
+    },
+
+    heartFlow: function() {
+        this.buttons([
+            {txt:"Göğüs Ağrısı", act:() => {
+                this.botType("❤️ Yarı oturur pozisyona getirin. Kravatı gevşetin. Aspirin varsa verin.");
+                this.emergency("KALP KRİZİ RİSKİ");
+            }},
+            {txt:"Sadece Bayıldı", act:() => this.botType("Sırt üstü yatırın, ayaklarını 30cm kaldırın.")}
+        ]);
+    },
+
+    allergyFlow: function() {
+        this.botType("Nefes darlığı veya dilde şişme var mı?");
+        this.buttons([
+            {txt:"Evet, Şişiyor", act:() => {
+                this.botType("💉 <b>ANAFİLAKTİK ŞOK!</b> Varsa EpiPen uygulayın.");
+                this.emergency("ALERJİK ŞOK");
+            }},
+            {txt:"Sadece Kaşıntı", act:() => this.botType("Alerji ilacı varsa verin, hastaneye gidin.")}
+        ]);
+    },
+
+    generalFlow: function() {
+        this.botType("Durum nedir?");
+        this.buttons([
+            {txt:"Bilinç Yok", act:() => {
+                this.botType("Nefes yoksa kalp masajına başlayın.");
+                this.emergency("BİLİNÇ KAYBI");
+            }},
+            {txt:"Kanama", act:() => {
+                this.botType("🩸 Yaraya temiz bezle BASTIRIN.");
+                this.emergency("C
